@@ -24,12 +24,11 @@ import axios from '../axios/axios';
 import fs from 'react-native-fs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import getThumbnail from '../components/Thumbnail';
-import dynamicLinks from '@react-native-firebase/dynamic-links'; 
+import dynamicLinks from '@react-native-firebase/dynamic-links';
 
 const {width, height} = Dimensions.get('window');
 
 const DetailScreen = ({navigation, route}) => {
-  
   const [pdfId, setPdfId] = useState();
   const [details, setDetails] = useState();
   const [loading, setLoading] = useState(true);
@@ -37,7 +36,7 @@ const DetailScreen = ({navigation, route}) => {
   const [isBookmark, setIsBookmark] = useState(true);
   const [processingBookmark, setProcessingBookmark] = useState(null);
   useEffect(async () => {
-    const user_data = await AsyncStorage.getItem('user');
+    var user_data = await AsyncStorage.getItem('user');
     const user_json = JSON.parse(user_data);
     setUser(user_json);
     setPdfId(route.params.id);
@@ -69,20 +68,20 @@ const DetailScreen = ({navigation, route}) => {
       });
   }, []);
   const onShare = async pdf_name => {
-    
     const link = await dynamicLinks().buildLink({
-      link: ("https://"+pdfId).toString(),
+      link: ('https://' + pdfId).toString(),
       // domainUriPrefix is created in your Firebase console
       domainUriPrefix: 'https://saspbook4u.page.link/',
     });
 
-    console.log(link);
+    //console.log(link);
     try {
       const result = await Share.share({
         message:
           'Checkout this amazing ' +
           pdf_name +
-          " pdf I'm reading at Book4u! "+ link,
+          " pdf I'm reading at Book4u!\n" +
+          link,
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
@@ -94,7 +93,7 @@ const DetailScreen = ({navigation, route}) => {
         // dismissed
       }
     } catch (error) {
-      alert(error.message);
+      ToastAndroid.show(error.stringify(), ToastAndroid.SHORT);
     }
   };
 
@@ -104,7 +103,7 @@ const DetailScreen = ({navigation, route}) => {
     const dir = `${fs.DocumentDirectoryPath}/.book4u`;
     const exist = await fs.exists(dir);
     // console.log(exist);
-    if (exist == false) {
+    if (exist === false) {
       fs.mkdir(dir)
         .then(() => {})
         .catch(error => console.log(error));
@@ -212,6 +211,14 @@ const DetailScreen = ({navigation, route}) => {
     }
   };
 
+  const goBack = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.replace('HomeScreen');
+    }
+  };
+
   // console.log(route.params.id);
   if (loading) {
     return (
@@ -227,12 +234,7 @@ const DetailScreen = ({navigation, route}) => {
           <TouchableOpacity
             style={styles.backComponent}
             onPress={() => {
-                try{
-                  navigation.goBack();
-                }catch(error){
-                  console.log(error)
-                  navigation.replace("HomeScreen")
-                }
+              goBack();
             }}>
             <FontAwesome5 name="arrow-left" size={20} color={'#000'} />
           </TouchableOpacity>
@@ -487,7 +489,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     borderRadius: 10,
     backgroundColor: '#000',
-    marginHorizontal: 5,
     position: 'absolute',
     bottom: 10,
     zIndex: 1000,

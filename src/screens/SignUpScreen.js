@@ -39,7 +39,8 @@ const SignUpScreen = ({navigation}) => {
 
   useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged(async user => {
-      if (user && user.uid) {
+      const stored_user = await AsyncStorage.getItem('user');
+      if (user && user.uid && stored_user && stored_user.v_status==true) {
         ToastAndroid.show(
           'Number validated , creating user!',
           ToastAndroid.SHORT,
@@ -70,8 +71,17 @@ const SignUpScreen = ({navigation}) => {
         // const user = await AsyncStorage.getItem('user');
         // console.log(JSON.parse(user));
         // console.log(response)
+        console.log(response.data);
+        if (response.data != null) {
+          await AsyncStorage.setItem('user', JSON.stringify(response.data));
+          navigation.replace('HomeScreen');
+        } else {
+          ToastAndroid.show(
+            'Error occured while adding user, please try again',
+            ToastAndroid.SHORT,
+          );
+        }
         setProcessing2(false);
-        navigation.replace('HomeScreen');
       })
       .catch(err => {
         console.log(err);
@@ -111,6 +121,7 @@ const SignUpScreen = ({navigation}) => {
               phone_no: phoneNo,
               department_id: selectDepartment,
               password: password,
+              v_status: false,
             };
             await AsyncStorage.setItem('user', JSON.stringify(data));
             ToastAndroid.show(
@@ -160,7 +171,7 @@ const SignUpScreen = ({navigation}) => {
         // ToastAndroid.show(error, ToastAndroid.SHORT);
         // console.log(error);
         console.log(error);
-        ToastAndroid.show(err.message, ToastAndroid.LONG);
+        ToastAndroid.show(error.message, ToastAndroid.LONG);
       }
       setProcessing2(false);
     } else {
