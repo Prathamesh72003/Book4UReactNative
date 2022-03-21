@@ -39,8 +39,8 @@ const LoginScreen = ({navigation}) => {
           // console.log(response.data);
           if (response.data != false) {
             await AsyncStorage.setItem('user', JSON.stringify(response.data));
-            // const user_data = await AsyncStorage.getItem('user');
-            // console.log(JSON.parse(user_data));
+            const user_data = await AsyncStorage.getItem('user');
+            console.log(JSON.parse(user_data));
             ToastAndroid.show('Logged in succesfull', ToastAndroid.SHORT);
             navigation.replace('HomeScreen');
             setProcessing(false);

@@ -39,7 +39,9 @@ const SignUpScreen = ({navigation}) => {
 
   useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged(async user => {
-      const stored_user = await AsyncStorage.getItem('user');
+      var stored_user = await AsyncStorage.getItem('user');
+      console.log("From useEffect of signup: ", JSON.parse(stored_user));
+    stored_user = JSON.parse(stored_user);
       if (user && user.uid && stored_user && stored_user.v_status==true) {
         ToastAndroid.show(
           'Number validated , creating user!',
@@ -68,12 +70,12 @@ const SignUpScreen = ({navigation}) => {
     axios
       .post('/add_user', data)
       .then(async response => {
-        // const user = await AsyncStorage.getItem('user');
-        // console.log(JSON.parse(user));
         // console.log(response)
         console.log(response.data);
         if (response.data != null) {
           await AsyncStorage.setItem('user', JSON.stringify(response.data));
+          const user = await AsyncStorage.getItem('user');
+          console.log(JSON.parse(user));
           navigation.replace('HomeScreen');
         } else {
           ToastAndroid.show(

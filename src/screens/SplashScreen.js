@@ -26,7 +26,10 @@ const SplashScreen = ({navigation}) => {
   };
 
   setTimeout(async () => {
-    const user = await AsyncStorage.getItem('user');
+    var user = await AsyncStorage.getItem('user');
+    // console.log("From splash screen: ",JSON.parse(user));
+    console.log(JSON.parse(user));
+    user = JSON.parse(user);
     if (user != null && user.v_status == true) {
       const unsubscribe = dynamicLinks().onLink(handleDynamicLink);
       // When the component is unmounted, remove the listener
@@ -36,7 +39,8 @@ const SplashScreen = ({navigation}) => {
         .then(link => {
           handleDynamicLink(link);
         });
-    } else {
+        navigation.replace("HomeScreen");
+    }else {
       navigation.replace('First');
     }
     // navigation.navigate('First');
