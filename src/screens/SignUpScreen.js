@@ -27,7 +27,7 @@ const Height = Dimensions.get('window').height;
 
 const SignUpScreen = ({navigation}) => {
   const [username, setUsername] = useState();
-  const [phoneNo, setPhoneNo] = useState();
+  const [phoneNo, setPhoneNo] = useState('');
   const [emailId, setEmailId] = useState();
   const [password, setPassword] = useState();
   const [selectDepartment, setSelectDepartment] = useState(1);
@@ -37,12 +37,19 @@ const SignUpScreen = ({navigation}) => {
   const [processing1, setProcessing1] = useState(false);
   const [processing2, setProcessing2] = useState(false);
 
-  useEffect(() => {
+  useEffect(async () => {
+    await auth().signOut().then(() => {
+      console.log("signout")
+    }).catch((e) => {
+      console.error(e);
+    });
+    // console.log("From useEffect of signup after signout: ", user);
     const unsubscribe = auth().onAuthStateChanged(async user => {
-      var stored_user = await AsyncStorage.getItem('user');
-      console.log("From useEffect of signup: ", JSON.parse(stored_user));
-    stored_user = JSON.parse(stored_user);
-      if (user && user.uid && stored_user && stored_user.v_status==true) {
+      // var stored_user = await AsyncStorage.getItem('user');
+      console.log("From useEffect of signup: ", user);
+      // console.log("OTP screen ", confirm);
+    // stored_user = JSON.parse(stored_user);
+      if (user!=null && user.uid) {
         ToastAndroid.show(
           'Number validated , creating user!',
           ToastAndroid.SHORT,
@@ -58,7 +65,7 @@ const SignUpScreen = ({navigation}) => {
 
   const addUser = async () => {
     const user = await AsyncStorage.getItem('user');
-    console.log(JSON.parse(user));
+    console.log("From add user function:"+JSON.parse(user));
     let data = {
       username: JSON.parse(user).name,
       email: JSON.parse(user).email == null ? '' : JSON.parse(user).email,
@@ -71,11 +78,11 @@ const SignUpScreen = ({navigation}) => {
       .post('/add_user', data)
       .then(async response => {
         // console.log(response)
-        console.log(response.data);
+        // console.log(response.data);
         if (response.data != null) {
           await AsyncStorage.setItem('user', JSON.stringify(response.data));
-          const user = await AsyncStorage.getItem('user');
-          console.log(JSON.parse(user));
+          // const user = await AsyncStorage.getItem('user');
+          // console.log(JSON.parse(user));
           navigation.replace('HomeScreen');
         } else {
           ToastAndroid.show(
@@ -103,7 +110,7 @@ const SignUpScreen = ({navigation}) => {
       axios
         .get('./check_user', {params: {user_name: username, phone_no: phoneNo}})
         .then(async response => {
-          console.log(response.data);
+          // console.log(response.data);
           if (response.data == '3') {
             ToastAndroid.show(
               'Username and phone number already exsists!',
@@ -168,6 +175,7 @@ const SignUpScreen = ({navigation}) => {
       setProcessing2(true);
       try {
         await confirm.confirm(otp);
+        // await confirm.confirm(otp);
       } catch (error) {
         console.log('Invalid code.');
         // ToastAndroid.show(error, ToastAndroid.SHORT);
